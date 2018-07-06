@@ -397,7 +397,11 @@ C-------CI_models variables
       integer                        :: iq 
       double precision               :: SS
       double precision               :: ContAlph ! function
-C      integer                        :: i_ci
+C      DOUBLE PRECISION CIXQfractLO(5000,2,7)
+      DOUBLE PRECISION, DIMENSION(4,6) :: Eta_one_model
+      DOUBLE PRECISION, DIMENSION(4,6) :: Eta_resulting
+      integer :: i_ci
+
 
 C---------------------------------------------------------
       if(debug) then
@@ -505,14 +509,24 @@ C
 C   LW: 30.06 CI theory calculation
 
          if(doCI) then
+c         do i_ci = 1, CInumber
+
+         Eta_resulting = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
+     $], [4,6])
+
          do i_ci = 1, CInumber
+            call ModImpose(Eta_one_model,CIvarval(i_ci),
+     $                     CIindex(i_ci),eta_tensor_form(i_ci))
+            Eta_resulting = Eta_resulting + Eta_one_model
+         enddo
 
-            call ModImpose(eta,CIvarval(i_ci),CIindex(i_ci))
-
-            eta3 = reshape([eta(1,1)-eta(1,2),
-     $                eta(1,3)-eta(1,4),
-     $                eta(1,5)-eta(1,6)],
-     $                [3])
+         eta3 = reshape([Eta_resulting(1,1) - Eta_resulting(1,2),
+     $                   Eta_resulting(1,3) - Eta_resulting(1,4),
+     $                   Eta_resulting(1,5) - Eta_resulting(1,6)],
+     $                   [3])
 
 
             if (XSecType.eq.'NCDIS'.or.XSecType.eq.'CCDIS') then
@@ -537,7 +551,7 @@ C                print*,'CIstudy: Past doCI check. CIindex = ',CIindex(i_ci)
                   xsec_LO_SM=0.0
             
                   if(XSecType.eq.'NCDIS')then
-                     call DContNC(x(i),q2(i),SS,Eta,Electron,polarity, 
+                  call DContNC(x(i),q2(i),SS,Eta_resulting,Electron,polarity, 
      +                  Mz, alphaem, XQfract, xsec_LO_SM, xsec_LO_SM_CI,
      +                  Status )
                   endif
@@ -552,12 +566,12 @@ C                print*,'CIstudy: Past doCI check. CIindex = ',CIindex(i_ci)
                      THEO(idx) = THEO(idx)*(xsec_LO_SM_CI/xsec_LO_SM)
                   endif
 
-               elseif (CIindex(i_ci).eq.401) then
-                  THEO(idx) = THEO(idx)*(( 1 - (CIvarval(i_ci))*Q2(i)/6 )**2 )
+!               elseif (CIindex(i_ci).eq.401) then
+!                  THEO(idx) = THEO(idx)*(( 1 - (CIvarval(i_ci))*Q2(i)/6 )**2 )
                endif
 
             endif
-         end do
+!         end do
          endif
       
 

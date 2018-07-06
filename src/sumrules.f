@@ -8,7 +8,7 @@
 #include "steering.inc"
 #include "pdfparam.inc"
 #include "for_debug.inc"
-#include "CI_models.inc"
+c#include "CI_models.inc"
 
       integer kflag
       double precision t1,t2,t3,t4,term
@@ -38,6 +38,12 @@
       double precision tstr,tNoGlue,tPho
 *add for mixed CTEQHERA
       double precision SumRuleCTEQ, SumRuleCTEQhera
+
+C-------CI_multy-dim
+      integer i_ci
+      DOUBLE PRECISION, DIMENSION(4,6) :: Eta_one_model
+      DOUBLE PRECISION, DIMENSION(4,6) :: Eta_resulting
+
 
 C-----------------------------------------
       kflag=0
@@ -209,6 +215,29 @@ cVR      print*,'........................................tphoton', tPho
             print '(''CI:'',A2)', CItype(i_ci)
             print '(''CI:'',E10.2)', CIvarval(i_ci)
          enddo
+
+C        Test tensor definition
+                  Eta_resulting = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
+     $], [4,6])
+
+         do i_ci = 1, CInumber
+            call ModImpose(Eta_one_model,CIvarval(i_ci),
+     $                     CIindex(i_ci),eta_tensor_form(i_ci))
+            print *,"One model: ",CItype(i_ci),eta_tensor_form(i_ci)
+            print '('' '',6E10.2)',(Eta_one_model(1,i),i=1,6)
+            print '('' '',6E10.2)',(Eta_one_model(2,i),i=1,6)
+            print '('' '',6E10.2)',(Eta_one_model(3,i),i=1,6)
+            print '('' '',6E10.2)',(Eta_one_model(4,i),i=1,6)
+            Eta_resulting = Eta_resulting + Eta_one_model
+         enddo
+            print *,"Result:"
+            print '('' '',6E10.2)',(Eta_resulting(1,i),i=1,6)
+            print '('' '',6E10.2)',(Eta_resulting(2,i),i=1,6)
+            print '('' '',6E10.2)',(Eta_resulting(3,i),i=1,6)
+            print '('' '',6E10.2)',(Eta_resulting(4,i),i=1,6)
 
          if (iTheory.eq.11.or.iTheory.eq.35) then
             print '(''PH:'',11F10.4)',(parphoton(i),i=1,10)

@@ -1764,6 +1764,8 @@ C-----------------------------------------------------------------------------
       character*64 SourceName
       
       integer ii,iasym
+
+      
 C-----------------------------------------
       
       SourceName = SName
@@ -1920,10 +1922,12 @@ C<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
       include 'CI_models.inc'
 
       external :: eprc_init
+C-------CI_multy-dim
+      integer i_ci
 C---------------------------------------------
 C
 C CI namelist
-      namelist/CIstudy/ doCI, CInumber, CItype, CIvarval, CIvarstep,
+      namelist/CIstudy/ doCI, CInumber, CItype, eta_tensor_form, CIvarval, CIvarstep,
      &                  CIrunning_alphaem, CIDoSimpFit, CISimpFitStep,
      &                  CIalphaemrun_func
 C  Read the CI namelist:

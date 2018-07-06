@@ -1,7 +1,7 @@
 Cd
 C=================================================================-
 C
-      Subroutine ModImpose(Eta,CIvarval,CIindex)
+      Subroutine ModImpose(Eta,CIvarval,CIindex,eta_tensor_form)
 C
 C Impose parameter relations in given model
 
@@ -13,6 +13,7 @@ c      include 'steering.inc'
       integer CIindex
 C       Real*8 par(8)
       DOUBLE PRECISION, DIMENSION(4,6) :: Eta
+      character*32 eta_tensor_form
 
 C       Real :: Eta(4,2)
 C
@@ -620,12 +621,80 @@ CCC
 CCC         Endif
 CCC------------HERE WE FORM ETA FROM PAR
 
+      SELECT CASE(eta_tensor_form)
+
+      CASE ('Flavour_symmetry')
       Eta = reshape([
-     $ par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8),     
-     $ par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8),
-     $ par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8)  
+     $   par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8),     
+     $   par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8),
+     $   par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8)  
      $], [4,6])
-c      write (190,*) 'CIvarval (in ModImpose)=',CIvarval
+
+      CASE ('first_all')
+      Eta = reshape([
+     $   par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8),     
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0
+     $], [4,6])
+      
+      CASE ('first_up')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0,  par(5), par(6), par(7), par(8),     
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0
+     $], [4,6])
+
+      CASE ('first_down')
+      Eta = reshape([
+     $   par(1), par(2), par(3), par(4), 0D0, 0D0, 0D0, 0D0,     
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0
+     $], [4,6])
+
+      CASE ('second_all')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,     
+     $   par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8),
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
+     $], [4,6])
+
+      CASE ('second_up')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,     
+     $   0D0, 0D0, 0D0, 0D0, par(5), par(6), par(7), par(8),
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
+     $], [4,6]) 
+
+      CASE ('second_down')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,     
+     $   par(5), par(6), par(7), par(8), 0D0, 0D0, 0D0, 0D0, 
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
+     $], [4,6]) 
+
+      CASE ('third_all')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
+     $   par(1), par(2), par(3), par(4), par(5), par(6), par(7), par(8)  
+     $], [4,6])
+
+      CASE ('third_up')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
+     $   0D0, 0D0, 0D0, 0D0, par(5), par(6), par(7), par(8)  
+     $], [4,6])
+
+      CASE ('third_down')
+      Eta = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
+     $   par(5), par(6), par(7), par(8),0D0, 0D0, 0D0, 0D0 
+     $], [4,6])
+
+      
+      END SELECT
         
       Return
       End
@@ -732,8 +801,8 @@ C
 C
       IMPLICIT NONE
       DOUBLE PRECISION S, T, Zmass0, Alpha
-      DOUBLE PRECISION  Ampl(4,6)
-C      Real*8 Eta(4,6)
+      DOUBLE PRECISION Ampl(4,6)
+      DOUBLE PRECISION Eta(4,6)
       Integer Status
 C
 C Model parameters - LQ mass
@@ -1084,18 +1153,19 @@ CC      EndIf
 C
 C Kinemaitc corrections for model 16 (Extra dimentions)
 C
+C Extra dimensions could be commented
 
-       If(CIindex.EQ.201)Then
-          GrCorr(1)= -3.1415926/2. * (4.*u+t)/1000000.
-          GrCorr(2)= -3.1415926/2. * (4.*u+3.*t)/1000000.
-          GrCorr(3)=GrCorr(2)
-          GrCorr(4)=GrCorr(1)
-
-       Else
-          Do ic=1,4
-            GrCorr(ic)=1.
-          EndDo
-       EndIf
+c       If(CIindex.EQ.201)Then
+c          GrCorr(1)= -3.1415926/2. * (4.*u+t)/1000000.
+c          GrCorr(2)= -3.1415926/2. * (4.*u+3.*t)/1000000.
+c          GrCorr(3)=GrCorr(2)
+c          GrCorr(4)=GrCorr(1)
+c
+c       Else
+c          Do ic=1,4
+c            GrCorr(ic)=1.
+c          EndDo
+c       EndIf
 C
 C Final calculation
 C
@@ -1199,7 +1269,7 @@ C
       IMPLICIT NONE
       DOUBLE PRECISION X, Q2, S, XQfract(2,6), Polar, Zmass, Alpha
       DOUBLE PRECISION DisCross, ConCross
-C      Real*8 Eta(4,6)
+      DOUBLE PRECISION Eta(4,6)
       Integer Status
       Logical Electron
 C
@@ -1656,165 +1726,3 @@ C LW 30.01.16: adding lepton polarization
       RETURN
       END
 C
-
-      Subroutine CIsavePdfLO
-      IMPLICIT NONE
-      
-      Integer isdx
-      include 'steering.inc'
-      include 'CI_models.inc'
-      open(112,file="CIpdfLO_out.txt",action="write",status="replace")
-      
-      Do isdx=1,5000
-        write(112,*) CIXQfractLO(isdx,1,1), CIXQfractLO(isdx,2,1), 
-     +               CIXQfractLO(isdx,1,2), CIXQfractLO(isdx,2,2), 
-     +               CIXQfractLO(isdx,1,3), CIXQfractLO(isdx,2,3), 
-     +               CIXQfractLO(isdx,1,4), CIXQfractLO(isdx,2,4), 
-     +               CIXQfractLO(isdx,1,5), CIXQfractLO(isdx,2,5), 
-     +               CIXQfractLO(isdx,1,6), CIXQfractLO(isdx,2,6), 
-     +               CIXQfractLO(isdx,1,7), CIXQfractLO(isdx,2,7)
-      EndDo
-      
-      close (112)
-      
-      Return
-      End
-
-
-
-      Subroutine CIreadPdfLO
-      IMPLICIT NONE
-
-      Integer irdx
-      include 'steering.inc'
-      include 'CI_models.inc'
-
-      open(114,file="CIpdfLO_in.txt",action="read")
-
-      Do irdx=1,5000
-        read(114,*) CIXQfractLO(irdx,1,1), CIXQfractLO(irdx,2,1),
-     +              CIXQfractLO(irdx,1,2), CIXQfractLO(irdx,2,2),
-     +              CIXQfractLO(irdx,1,3), CIXQfractLO(irdx,2,3),
-     +              CIXQfractLO(irdx,1,4), CIXQfractLO(irdx,2,4),
-     +              CIXQfractLO(irdx,1,5), CIXQfractLO(irdx,2,5),
-     +              CIXQfractLO(irdx,1,6), CIXQfractLO(irdx,2,6),
-     +              CIXQfractLO(irdx,1,7), CIXQfractLO(irdx,2,7)
-      EndDo
-
-      close (114)
-
-      Return
-      End
-
-
-      Subroutine CIprintLOratio
-      IMPLICIT NONE
-
-      DOUBLE PRECISION EtaParNC(4,6), EtaVal
-      Integer iqg, iqt, iq, ilr
-      Integer iNx, iNq2, iNelectron, iNeta
-      Logical isElectron
-      DOUBLE PRECISION XQfract(2,7), CIX(6), CIQ2, CIS, CIPolar, CIAlpha
-      DOUBLE PRECISION Q2min0, Q2max0, Q2max, Q2logstep
-      DOUBLE PRECISION DisCross, ConCross
-      Integer Status
-
-      double precision dbPdf, hfX, hfQ2
-      dimension dbPdf(-6:6)
-
-      character*64 OutFile, ChEta
-      Integer iFile
-
-      Data CIX/0.1, 0.2, 0.3, 0.4, 0.5, 0.6/
-c      Data OutFile/"./CI_output/CI_LOration.txt"/
-      
-      include 'steering.inc'
-      include 'CI_models.inc'
-
-      CIS = (318.0)**2
-
-      Q2min0 = 900
-      Q2max0 = 70000
-
-      CIPolar = 0
-      CIAlpha = -1.
-
-      EtaVal = (4 * 3.14159265) / (5000**2)
-
-      Do iNeta=1,2
-
-        if (iNeta.eq.1) then
-          ChEta='eta+'
-          Do iqg=1,6
-            Do ilr=1,4
-              EtaParNC(ilr,iqg) = EtaVal
-            EndDo
-          EndDo
-        else
-          ChEta='eta-'
-          Do iqg=1,6
-            Do ilr=1,4
-              EtaParNC(ilr,iqg) = -EtaVal
-            EndDo
-          EndDo
-        endif
-
-        Do iNelectron=1,2
-
-          if (iNelectron.eq.1) then
-            isElectron=.true.
-          else
-            isElectron=.false.
-          endif
-
-          Do iNx=1,6
-
-            if (isElectron) then
-              write(OutFile, '(A14,F3.1,A4,A4)') 
-     +          'LOratioNCe-pX=',CIX(iNx),ChEta,'.dat'
-            else
-              write(OutFile, '(A14,F3.1,A4,A4)') 
-     +          'LOratioNCe+pX=',CIX(iNx),ChEta,'.dat'
-            endif
-          
-            iFile = iNelectron*100 + iNx
-            open(iFile,file=OutFile,action="write",status="replace")
-
-            Q2max = CIS*CIX(iNx)*0.99
-            if (Q2max.gt.Q2max0) then
-              Q2max = Q2max0
-            endif
-
-            Q2logstep = (log(Q2max) - log(Q2min0)) / 499
-
-            Do iNq2=1,500
-
-              CIQ2 = exp(log(Q2min0) + Q2logstep*(iNq2-1))
-
-              hfX = CIX(iNx)
-              hfQ2 = CIQ2
-              Call hf_get_pdfs(hfX,hfQ2,dbPdf)
-              Do iq=1,6
-                XQfract(1,iq) = dbPdf(iq)
-                XQfract(2,iq) = dbPdf(-iq)
-              EndDo
-
-              Call DContNC( CIX(iNx), CIQ2, CIS, EtaParNC, isElectron,
-     +            CIPolar,DBLE(-1.), CIAlpha, XQfract, DisCross, ConCross, 
-     +            Status )
-
-              write(iFile,*) CIQ2, (ConCross/DisCross), Status,CIX(iNx),
-     +              XQfract
-
-            EndDo
-
-            close (iFile)
-
-          EndDo
-        EndDo
-      EndDo
-
-      Return
-      End
-
-
