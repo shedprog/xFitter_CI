@@ -465,6 +465,25 @@ C
       call CalcReducedXsectionForXYQ2(X,Y,Q2,NDATAPOINTS(IDataSet),
      $     charge,polarity,IDataSet,XSecType, local_hfscheme,XSec)
 
+C-------------------------CI tensor definition
+         Eta_resulting = reshape([
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
+     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
+     $], [4,6])
+
+         do i_ci = 1, CInumber
+            call ModImpose(Eta_one_model,CIvarval(i_ci),
+     $                     CIindex(i_ci),eta_tensor_form(i_ci))
+            Eta_resulting = Eta_resulting + Eta_one_model
+         enddo
+
+         eta3 = reshape([Eta_resulting(1,1) - Eta_resulting(1,2),
+     $                   Eta_resulting(1,3) - Eta_resulting(1,4),
+     $                   Eta_resulting(1,5) - Eta_resulting(1,6)],
+     $                   [3])
+C-------------------------end of CI tensor definition
+
       do i=1,NDATAPOINTS(IDataSet)
          idx =  DATASETIDX(IDataSet,i)
 
@@ -507,32 +526,15 @@ C
          THEO(idx) =  XSec(i)*factor
          
 C   LW: 30.06 CI theory calculation
+      
 
          if(doCI) then
-c         do i_ci = 1, CInumber
-
-         Eta_resulting = reshape([
-     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,      
-     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,  
-     $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
-     $], [4,6])
-
-         do i_ci = 1, CInumber
-            call ModImpose(Eta_one_model,CIvarval(i_ci),
-     $                     CIindex(i_ci),eta_tensor_form(i_ci))
-            Eta_resulting = Eta_resulting + Eta_one_model
-         enddo
-
-         eta3 = reshape([Eta_resulting(1,1) - Eta_resulting(1,2),
-     $                   Eta_resulting(1,3) - Eta_resulting(1,4),
-     $                   Eta_resulting(1,5) - Eta_resulting(1,6)],
-     $                   [3])
-
 
             if (XSecType.eq.'NCDIS'.or.XSecType.eq.'CCDIS') then
-C                print*,'CIstudy: Past doCI check. CIindex = ',CIindex(i_ci)
+!               print*,'CIstudy: Past doCI check. XSecType'
 
-               if((CIindex(i_ci).GT.100).AND.(CIindex(i_ci).LT.320)) then
+!               if((CIindex(i_ci).GT.100).AND.(CIindex(i_ci).LT.320)) then
+                 
                   if (charge.LT.0.0) then
                      Electron = .TRUE.
                   else 
@@ -542,6 +544,7 @@ C                print*,'CIstudy: Past doCI check. CIindex = ',CIindex(i_ci)
                   SS = q2(i)/(x(i)*y(i))
 
                   Call hf_get_pdfs(x(i),q2(i),dbPdf)
+
                   Do iq=1,6
                      XQfract(1,iq) = dbPdf(iq)
                      XQfract(2,iq) = dbPdf(-iq)
@@ -562,13 +565,14 @@ C                print*,'CIstudy: Past doCI check. CIindex = ',CIindex(i_ci)
      +                  Status ) 
                   endif
 
+
                   if((xsec_LO_SM_CI.GT.0.).AND.(xsec_LO_SM.GT.0.))then 
                      THEO(idx) = THEO(idx)*(xsec_LO_SM_CI/xsec_LO_SM)
                   endif
 
 !               elseif (CIindex(i_ci).eq.401) then
 !                  THEO(idx) = THEO(idx)*(( 1 - (CIvarval(i_ci))*Q2(i)/6 )**2 )
-               endif
+!               endif
 
             endif
 !         end do
