@@ -212,7 +212,7 @@ cVR      print*,'........................................tphoton', tPho
          print '(''GL:'',11F10.4)',(parglue(i),i=1,10)
          !print '(''ST:'',11F10.4)',(parstr(i),i=1,10)
          do i_ci = 1, CInumber
-            print '(''CI:'',A2)', CItype(i_ci)
+            print '(''CI:'',2A7)', CItype(i_ci), eta_tensor_form(i_ci)
             print '(''CI:'',E10.2)', CIvarval(i_ci)
          enddo
 
@@ -223,21 +223,21 @@ C        Test tensor definition
      $   0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0 
      $], [4,6])
 
-         do i_ci = 1, CInumber
-            call ModImpose(Eta_one_model,CIvarval(i_ci),
-     $                     CIindex(i_ci),eta_tensor_form(i_ci))
-            print *,"One model: ",CItype(i_ci),eta_tensor_form(i_ci)
-            print '('' '',6E10.2)',(Eta_one_model(1,i),i=1,6)
-            print '('' '',6E10.2)',(Eta_one_model(2,i),i=1,6)
-            print '('' '',6E10.2)',(Eta_one_model(3,i),i=1,6)
-            print '('' '',6E10.2)',(Eta_one_model(4,i),i=1,6)
-            Eta_resulting = Eta_resulting + Eta_one_model
-         enddo
-            print *,"Result:"
-            print '('' '',6E10.2)',(Eta_resulting(1,i),i=1,6)
-            print '('' '',6E10.2)',(Eta_resulting(2,i),i=1,6)
-            print '('' '',6E10.2)',(Eta_resulting(3,i),i=1,6)
-            print '('' '',6E10.2)',(Eta_resulting(4,i),i=1,6)
+c         do i_ci = 1, CInumber
+c            call ModImpose(Eta_one_model,CIvarval(i_ci),
+c     $                     CIindex(i_ci),eta_tensor_form(i_ci))
+c            print *,"One model: ",CItype(i_ci),eta_tensor_form(i_ci)
+c            print '('' '',6E10.2)',(Eta_one_model(1,i),i=1,6)
+c            print '('' '',6E10.2)',(Eta_one_model(2,i),i=1,6)
+c            print '('' '',6E10.2)',(Eta_one_model(3,i),i=1,6)
+c            print '('' '',6E10.2)',(Eta_one_model(4,i),i=1,6)
+c            Eta_resulting = Eta_resulting + Eta_one_model
+c         enddo
+c            print *,"Result:"
+c            print '('' '',6E10.2)',(Eta_resulting(1,i),i=1,6)
+c            print '('' '',6E10.2)',(Eta_resulting(2,i),i=1,6)
+c            print '('' '',6E10.2)',(Eta_resulting(3,i),i=1,6)
+c            print '('' '',6E10.2)',(Eta_resulting(4,i),i=1,6)
 
          if (iTheory.eq.11.or.iTheory.eq.35) then
             print '(''PH:'',11F10.4)',(parphoton(i),i=1,10)
