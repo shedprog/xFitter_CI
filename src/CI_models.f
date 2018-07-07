@@ -1162,9 +1162,9 @@ c          GrCorr(3)=GrCorr(2)
 c          GrCorr(4)=GrCorr(1)
 c
 c       Else
-c          Do ic=1,4
-c            GrCorr(ic)=1.
-c          EndDo
+          Do ic=1,4
+            GrCorr(ic)=1.
+          EndDo
 c       EndIf
 C
 C Final calculation
